@@ -6,8 +6,6 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 if (isset($_POST['submit'])) {
-    //echo "Form submitted <br>"; // Debugging: check if form was submitted
-
     // Collecting form data
     $last_name = $_POST['last_name'];
     $first_name = $_POST['first_name'];
@@ -32,6 +30,9 @@ if (isset($_POST['submit'])) {
     $mother_middle_name = $_POST['mother_middle_name'];
     $mother_occupation = $_POST['mother_occupation'];
     $mother_phone_no = $_POST['mother_phone_no'];
+    $year_level = $_POST['year_level'];
+    $semester = $_POST['semester'];
+    $course_name = $_POST['course_name'];
     $last_school_attended = $_POST['last_school_attended'];
     $strand = $_POST['strand'];
     $year_graduated = $_POST['year_graduated'];
@@ -39,9 +40,6 @@ if (isset($_POST['submit'])) {
     $transfer_last_school = $_POST['transfer_last_school'];
     $transfer_last_year = $_POST['transfer_last_year'];
     $transfer_course = $_POST['transfer_course'];
-    $year_level = $_POST['year_level'];
-    $semester = $_POST['semester'];
-    $course_name = $_POST['course_name'];
 
     // Begin transaction
     mysqli_begin_transaction($connection);
@@ -73,18 +71,18 @@ if (isset($_POST['submit'])) {
         mysqli_stmt_bind_param($stmtParents, "issssssssss", $student_id, $father_last_name, $father_first_name, $father_middle_name, $father_occupation, $father_phone_no, $mother_last_name, $mother_first_name, $mother_middle_name, $mother_occupation, $mother_phone_no);
         mysqli_stmt_execute($stmtParents);
 
+        // Insert data into courseenrollment table
+        $queryCourseEnrollment = "INSERT INTO courseenrollment (student_id, year_level, semester, course_name) VALUES (?, ?, ?, ?)";
+        $stmtCourseEnrollment = mysqli_prepare($connection, $queryCourseEnrollment);
+        mysqli_stmt_bind_param($stmtCourseEnrollment, "isss", $student_id, $year_level, $semester, $course_name);
+        mysqli_stmt_execute($stmtCourseEnrollment);
+
         // Insert data into education table (Adjust column names as needed)
         $queryEducation = "INSERT INTO education (student_id, senior_high_school, strand, year_graduated, general_average, transfer_last_school, transfer_last_year, transfer_course) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         $stmtEducation = mysqli_prepare($connection, $queryEducation);
         mysqli_stmt_bind_param($stmtEducation, "isssssss", $student_id, $last_school_attended, $strand, $year_graduated, $general_average, $transfer_last_school, $transfer_last_year, $transfer_course);
         mysqli_stmt_execute($stmtEducation);
-
-        // Insert data into courseenrollment table
-        $queryCourseEnrollment = "INSERT INTO courseenrollment (student_id, year_level, semester, course_name) VALUES (?, ?, ?, ?)";
-        $stmtCourseEnrollment = mysqli_prepare($connection, $queryCourseEnrollment);
-        mysqli_stmt_bind_param($stmtCourseEnrollment, "isss", $student_id, $year_level, $semester, $course_name);
-        mysqli_stmt_execute($stmtCourseEnrollment);
 
         // Handle file upload for requirements
         if (isset($_FILES['requirement_file']) && $_FILES['requirement_file']['error'] == UPLOAD_ERR_OK) {
@@ -95,7 +93,7 @@ if (isset($_POST['submit'])) {
             // Insert the image into the requirements table
             $queryRequirements = "INSERT INTO requirements (student_id, type, file, file_name) VALUES (?, ?, ?, ?)";
             $stmtRequirements = mysqli_prepare($connection, $queryRequirements);
-            $requirement_type = 'Image'; // Set the requirement type as needed
+            $requirement_type = 'Image';
             mysqli_stmt_bind_param($stmtRequirements, "isss", $student_id, $requirement_type, $fileContent, $fileName);
             mysqli_stmt_execute($stmtRequirements);
         } else {
@@ -103,9 +101,8 @@ if (isset($_POST['submit'])) {
         }
 
         mysqli_commit($connection);
-        //echo "Data inserted successfully";
         echo '<script> alert("Data Inserted Successfully") </script>';
-        echo '<script> window.location.href = "/monarch_online_enrollment/student_account.php" </script>';
+        echo '<script> window.location.href = "/monarch_online_enrollment/Student/student.php" </script>';
 
     } catch (Exception $e) {
         mysqli_rollback($connection);
@@ -130,15 +127,61 @@ if (isset($_POST['submit'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monarch Online Enrollment</title>
-    <link rel="stylesheet" href="">
+    <script>
+        // Function to toggle transferee, requirements, and education sections based on year level and transferee checkbox
+        function toggleSections() {
+            var isTransferee = document.getElementById("is_transferee").checked;
+            var yearLevel = document.getElementById("year_level").value;
+            var transfereeSection = document.getElementById("transfereeSection");
+            var requirementsSection = document.getElementById("requirementsSection");
+            var educationSection = document.getElementById("educationSection");
+
+            // Show or hide transferee section and requirements section based on transferee checkbox
+            if (isTransferee) {
+                transfereeSection.style.display = "block";
+                requirementsSection.style.display = "block";  // Show requirements when transferee is checked
+                document.getElementById("transfer_last_school").setAttribute("required", "required");
+                document.getElementById("transfer_last_year").setAttribute("required", "required");
+                document.getElementById("transfer_course").setAttribute("required", "required");
+                document.getElementById("requirement_file").setAttribute("required", "required");
+            } else {
+                transfereeSection.style.display = "none";
+                document.getElementById("transfer_last_school").removeAttribute("required");
+                document.getElementById("transfer_last_year").removeAttribute("required");
+                document.getElementById("transfer_course").removeAttribute("required");
+
+                // Only show requirements if it's also First Year
+                if (yearLevel === "1st Year") {
+                    requirementsSection.style.display = "block";
+                    document.getElementById("requirement_file").setAttribute("required", "required");
+                } else {
+                    requirementsSection.style.display = "none";
+                    document.getElementById("requirement_file").removeAttribute("required");
+                }
+            }
+
+            // Show education section only for First Year students
+            if (yearLevel === "1st Year") {
+                educationSection.style.display = "block";
+                document.getElementById("last_school_attended").setAttribute("required", "required");
+                document.getElementById("strand").setAttribute("required", "required");
+                document.getElementById("year_graduated").setAttribute("required", "required");
+                document.getElementById("general_average").setAttribute("required", "required");
+            } else {
+                educationSection.style.display = "none";
+                document.getElementById("last_school_attended").removeAttribute("required");
+                document.getElementById("strand").removeAttribute("required");
+                document.getElementById("year_graduated").removeAttribute("required");
+                document.getElementById("general_average").removeAttribute("required");
+            }
+        }
+
+    </script>
 </head>
-<body>    
-    <header class="header">
-        <h1>Monarch Online Enrollment</h1> <br>
-    </header>
+<body></body>
 
     <div class="form-body">
-        <!-- <form action="database.php" method="post" enctype="multipart/form-data"> -->
+        <!-- <form action="database.php" method="post" enctype="multipart/form-data 222"> -->
         <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post" enctype="multipart/form-data">
 
             <h3 class="box1">Basic Information</h3>
@@ -162,6 +205,7 @@ if (isset($_POST['submit'])) {
 
             <label for="religion">Religion</label>
             <select id="religion" name="religion" required>
+                <option value="">Select Religion</option>
                 <option value="catholic">Catholic</option>
                 <option value="inc">INC</option>
                 <option value="jw">JW</option>
@@ -230,45 +274,11 @@ if (isset($_POST['submit'])) {
             <label for="mother_phone_no">Mother Phone No</label>
             <input type="tel" id="mother_phone_no" name="mother_phone_no" required>
             <br> <br>
-
-            <h3>Education</h3>
-            <h4>Senior Highschool</h4>
-            <label for="last_school_attended"></label>
-            <input type="text" id="last_school_attended" name="last_school_attended" placeholder="Last School Attended" >
-
-            <label for="strand"></label>
-            <input type="text" id="strand" name="strand" placeholder="SHS Strand" required> <br> <br>
-            
-            <label for="year_graduated"></label>
-            <input type="text" id="year_graduated" name="year_graduated" placeholder="Year Graduated" required>
-            
-            <label for="general_average"></label>
-            <input type="text" id="general_average" name="general_average" placeholder="General Average" required>
-             <br>
-             
-             <h4>Transferee</h4>
-             <label for="transfer_last_school"></label>
-             <input type="text" id="transfer_last_school" name="transfer_last_school" placeholder="Last School Attended">
-
-             <label for="transfer_last_year"></label>
-             <input type="text" id="transfer_last_year" name="transfer_last_year" placeholder="Last School Year">
-            <br> <br>
-             <label for="transfer_course"></label>
-             <input type="text" id="transfer_course" name="transfer_course" placeholder="Course">
              
              <h3>Choose Course</h3>
-            <label for="year_level">Year Level</label>
-            <select id="year_level" name="year_level" required>
-                <option value="1st Year">1st Year</option>
-                <option value="2nd Year">2nd Year</option>
-                <option value="3rd Year">3rd Year</option>
-                <option value="4th Year">4th Year</option>
-            </select> <br> <br>
-
             <label for="semester">Semester:</label>
             <input type="hidden" id="semester" name="semester" value="First Semester">
             <span>First Semester</span> <br> <br>
-
 
             <label for="course_name">Courses</label>
             <select id="course_name" name="course_name" required>
@@ -276,11 +286,60 @@ if (isset($_POST['submit'])) {
                 <option value="cs">Computer Science</option>
             </select> <br> <br>
 
-            <h3 class="box7">Requirements</h3>
-            <label for="requirement_file">Upload Requirement (Image)</label>
-            <input type="file" id="requirement_file" name="requirement_file" accept="image/*" required> <br> <br> <br>
+            <div>
+                <label for="year_level">Year Level</label>
+                <select id="year_level" name="year_level" onchange="toggleSections();">
+                    <option value="">Select Year Level</option>
+                    <option value="1st Year">First Year</option>
+                    <option value="2nd Year">Second Year</option>
+                    <option value="3rd Year">Third Year</option>
+                    <option value="4th Year">Fourth Year</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="is_transferee">Are you a transferee?</label>
+                <input type="checkbox" id="is_transferee" name="is_transferee" value="Yes" onclick="toggleSections()"> Yes
+            </div>
+
+            <div id="transfereeSection" style="display:none;">
+                <h3 class="box7">Transferee Information</h3>
+                <label for="transfer_last_school">Last School Attended</label>
+                <input type="text" id="transfer_last_school" name="transfer_last_school"><br>
+                
+                <label for="transfer_last_year">Last Year Attended</label>
+                <input type="text" id="transfer_last_year" name="transfer_last_year"><br>
+                
+                <label for="transfer_course">Course Taken</label>
+                <input type="text" id="transfer_course" name="transfer_course"><br>
+            </div>
+
+            <div id="educationSection" style="display:none;">
+                <h3>Education</h3>
+                <h4>Senior Highschool</h4>
+                <label for="last_school_attended"></label>
+                <input type="text" id="last_school_attended" name="last_school_attended" placeholder="Last School Attended">
+
+                <label for="strand"></label>
+                <input type="text" id="strand" name="strand" placeholder="SHS Strand" required> <br> <br>
+
+                <label for="year_graduated"></label>
+                <input type="text" id="year_graduated" name="year_graduated" placeholder="Year Graduated" required>
+
+                <label for="general_average"></label>
+                <input type="text" id="general_average" name="general_average" placeholder="General Average" required>
+                <br>
+            </div>
+
+            <div id="requirementsSection" style="display:none;">
+                <h3 class="box7">Requirements</h3>
+                <label for="requirement_file">Upload Requirement (Image)</label>
+                <input type="file" id="requirement_file" name="requirement_file" accept="image/*"> <br> <br> <br>
+            </div>
 
             <input type="submit" name="submit" value="Enroll">
+
+            <a href="view-pre-enrolled.php?student_id=<?php echo htmlspecialchars($row['student_id']); ?>" title="View"><span class="las la-eye"></span></a>
         </form>
     </div>
 </body>

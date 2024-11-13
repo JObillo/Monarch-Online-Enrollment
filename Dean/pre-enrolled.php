@@ -146,7 +146,7 @@ if (!$result) {
                                     <td><?php echo htmlspecialchars($row['semester']); ?></td>
                                     <td><?php echo htmlspecialchars($row['course_name']); ?></td>
                                     <td>
-                                        <span class="status pending">Pending</span>
+                                        <span class="status pending">pending</span>
                                     </td>
                                     <td>
                                         <a href="download.php?id=<?php echo htmlspecialchars($row['student_id']); ?>" title="Download"><span class="las la-download"></span></a>

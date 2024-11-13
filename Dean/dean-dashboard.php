@@ -33,6 +33,22 @@ if ($resultEnrolledCount) {
     die("Query failed: " . mysqli_error($connection));
 }
 
+// Query to count total rejected students
+$queryRejectedCount = "
+    SELECT COUNT(*) AS total_rejected
+    FROM courseenrollment
+    WHERE status = 'rejected'";
+
+$resultRejectedCount = mysqli_query($connection, $queryRejectedCount);
+$totalRejected = 0; // Default value
+
+if ($resultRejectedCount) {
+    $rowCount = mysqli_fetch_assoc($resultRejectedCount);
+    $totalRejected = $rowCount['total_rejected'];
+} else {
+    die("Query failed: " . mysqli_error($connection));
+}
+
 // Query to join students and courseenrollment, including status
 $queryStudents = "
     SELECT 
@@ -45,7 +61,7 @@ $queryStudents = "
         courseenrollment.status  -- Include the status here
     FROM students
     JOIN courseenrollment ON students.student_id = courseenrollment.student_id
-    LIMIT 10";
+    LIMIT 20";
 
 $sqlStudents = mysqli_query($connection, $queryStudents);
 
@@ -133,8 +149,13 @@ if (!$sqlStudents) {
                     <div class="user">
                         <div class="bg-img" style="background-image: url(img/1.jpeg)"></div>
                         
-                        <span class="las la-power-off"></span>
-                        <span>Logout</span>
+                         <!-- Logout button -->
+                        <form action="dean-logout.php" method="post">
+                            <button type="submit" name="logout" class="logout-btn">
+                                <span class="las la-power-off"></span>
+                                <span>Logout</span>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -148,16 +169,6 @@ if (!$sqlStudents) {
             
             <div class="page-content">
                 <div class="analytics">
-                    <div class="card">
-                        <div class="card-head">
-                            <h2>1</h2>
-                            <span class="las la-user-friends"></span>
-                        </div>
-                        <div class="card-progress">
-                            <small>Total Administrator</small>
-                        </div>
-                    </div>
-
                     <div class="card">
                         <div class="card-head">
                             <h2><?php echo $totalPreEnrolled; ?></h2> <!-- Display dynamic pre-enrolled count -->
@@ -175,6 +186,16 @@ if (!$sqlStudents) {
                         </div>
                         <div class="card-progress">
                             <small>Total Enrolled</small>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-head">
+                            <h2><?php echo $totalRejected; ?></h2>
+                            <span class="las la-user-friends"></span>
+                        </div>
+                        <div class="card-progress">
+                            <small>Total Rejected</small>
                         </div>
                     </div>
 
@@ -229,7 +250,7 @@ if (!$sqlStudents) {
                                     <td><?php echo $results['year_level']; ?></td>
                                     <td>
                                     <span class="status <?php echo htmlspecialchars($results['status']); ?>">
-                                        <?php echo ($results['status'] === 'pre-enrolled') ? 'Pending' : htmlspecialchars($results['status']); ?>
+                                        <?php echo ($results['status'] === 'pre-enrolled') ? 'pending' : htmlspecialchars($results['status']); ?>
                                     </span>
                                     </td>
                                 </tr>
@@ -241,5 +262,5 @@ if (!$sqlStudents) {
             </div>
         </main>
     </div>
-</body>
+</body> 
 </html>

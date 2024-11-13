@@ -1,0 +1,229 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    background-color: #f5f6fa;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: 200px;
+    background-color: #2b2b2b;
+    color: #ffffff;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh; /* Full height */
+    position: sticky;
+    top: 0; /* Sidebar stays fixed */
+}
+
+.sidebar h3 {
+    font-size: 20px;
+    margin-bottom: 40px;
+    color: #ffbf00;
+}
+
+.sidebar ul {
+    list-style: none;
+    width: 100%;
+}
+
+.sidebar ul li {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.sidebar ul li a {
+    color: #ffffff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.sidebar ul li a.active,
+.sidebar ul li a:hover {
+    background-color: #1e90ff;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 20px;
+    margin-left: 50px; /* Adjust space to make it closer to sidebar */
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header-content h2 {
+    font-size: 24px;
+    color: #333;
+}
+
+.logout {
+    color: #ff4d4d;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+/* Profile and Form Container */
+.profile-container {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+/* Profile Information Section */
+.profile-info {
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    width: 300px; /* Adjusted width */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.profile-picture {
+    width: 120px;
+    height: 120px;
+    background-color: #c4c4c4;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+}
+
+.profile-info h3 {
+    font-size: 22px;
+    margin-bottom: 8px;
+}
+
+.profile-info p {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+/* Personal Details Section */
+.details-form {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 600px; /* Adjusted width */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px 20px;
+    font-size: 20px;
+}
+
+.details-form h2 {
+    grid-column: span 2;
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.details-form label {
+    font-weight: bold;
+    color: #555;
+}
+
+.static-info {
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    color: #333;
+    height: 40px;
+    width: 300px;
+    border: 1px solid black;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .profile-container {
+        flex-direction: column; /* Stack profile and details vertically */
+    }
+
+    .details-form {
+        grid-template-columns: 1fr; /* Single column on small screens */
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        order: 1; /* Sidebar at the top on mobile */
+    }
+
+    .main-content {
+        margin-left: 0; /* Remove sidebar margin on mobile */
+    }
+}
+
+/* Schedule Section */
+/* Adjustments for Schedule Section */
+.schedule-info{
+    margin-bottom: 10px;
+    font-size: 16px;
+    display: flex;
+    flex-direction: column;
+    margin-right: 500px;
+}
+
+.download-btn {
+    background-color: #007bff; /* Professional blue shade */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px; /* Rounded button */
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    font-size: 16px;
+    box-shadow: 0px 4px 8px rgba(0, 123, 255, 0.3);
+    transition: background-color 0.3s ease;
+    margin-left: 800px;
+}
+
+.download-btn:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+.download-btn .las {
+    margin-right: 8px;
+}
+
+/* Schedule Table */
+.schedule-table {
+    width: 100%;
+    max-width: 800px;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.schedule-table th,
+.schedule-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+    font-size: 14px;
+}
+
+.schedule-table th {
+    background-color: #343a40;
+    color: white;
+}

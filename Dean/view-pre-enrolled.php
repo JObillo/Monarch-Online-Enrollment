@@ -73,14 +73,15 @@ INNER JOIN
     address a ON s.student_id = a.student_id
 INNER JOIN 
     parents p ON s.student_id = p.student_id
-INNER JOIN 
-    education e ON s.student_id = e.student_id
+LEFT JOIN 
+    education e ON s.student_id = e.student_id  -- Use LEFT JOIN here for optional data
 INNER JOIN 
     courseenrollment ce ON s.student_id = ce.student_id
-INNER JOIN 
-    requirements r ON s.student_id = r.student_id
+LEFT JOIN 
+    requirements r ON s.student_id = r.student_id  -- Use LEFT JOIN here for optional data
 WHERE 
     s.student_id = $student_id;";
+
 
 $result = mysqli_query($connection, $queryStudentInformation);
 if (!$result) {

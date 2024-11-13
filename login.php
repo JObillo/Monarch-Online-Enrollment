@@ -1,99 +1,73 @@
-<?php require_once 'database.php'; 
+<?php 
+require('database.php');
 session_start();
-// if(isset($_SESSION['user_login'])){
-// 	header('Location: index.php');
-// }
-	if (isset($_POST['login'])) {
-		$username= $_POST['username'];
-		$password= $_POST['password'];
 
+/* Functions */
+function pathTo($destination) {
+    echo "<script>window.location.href = '/monarch_online_enrollment/$destination.php'</script>";
+}
 
-		$input_arr = array();
+// Check if the user is already logged in
+if (isset($_SESSION['status']) && $_SESSION['status'] == 'valid') {
+    pathTo('login');
+}
 
-		if (empty($username)) {
-			$input_arr['input_user_error']= "Username Is Required!";
-		}
+if (isset($_POST['login'])) {
+    $username = mysqli_real_escape_string($connection, trim($_POST['username']));
+    $password = mysqli_real_escape_string($connection, trim($_POST['password']));
 
-		if (empty($password)) {
-			$input_arr['input_pass_error']= "Password Is Required!";
-		}
+    if (empty($username) || empty($password)) {
+        echo "Please fill up all fields";
+    } else {
+        // Generate the MD5 hash for the password
+        $login_hashed_password = md5($password);
 
-		if(count($input_arr)==0){
-			$query = "SELECT * FROM `users` WHERE `username` = '$username';";
-			$result = mysqli_query($db_con, $query);
-			if (mysqli_num_rows($result)==1) {
-				$row = mysqli_fetch_assoc($result);
-				if ($row['password']==sha1(md5($password))) {
-					if ($row['status']=='active') {
-						$_SESSION['user_login']=$username;
-						header('Location: index.php');
-					}else{
-						$status_inactive = "Your Status is inactive, please contact with admin or support!";
-					}
-				}else{
-					$worngpass= "This password Wrong!";	
-				}
-			}else{
-				$usernameerr= "Username Not Found!";
-			}
-		}
-		
-	}
+        // Query to validate username and password with MD5 hash
+        $queryValidate = "SELECT * FROM accounts WHERE username = '$username' AND password = '$login_hashed_password'";
+        $sqlValidate = mysqli_query($connection, $queryValidate);
 
+        if ($sqlValidate && mysqli_num_rows($sqlValidate) > 0) {
+            $rowValidate = mysqli_fetch_array($sqlValidate);
 
+            // Store session information
+            $_SESSION['status'] = 'valid';
+            $_SESSION['username'] = $rowValidate['username'];
+            $_SESSION['role'] = $rowValidate['role'];
+
+            // Redirect based on user role
+            if ($_SESSION['role'] == 'student') {
+                pathTo('enrollment_form');
+            } elseif ($_SESSION['role'] == 'dean') {
+                pathTo('Dean/dean-dashboard');
+            } elseif ($_SESSION['role'] == 'admin') {
+                pathTo('Admin/admin');
+            } else {
+                echo "Error: User role not recognized.";
+            }
+        } else {
+            // Invalid credentials
+            $_SESSION['status'] = 'invalid';
+            echo 'Invalid Credential';
+        }
+    }
+}
 ?>
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LOGIN</title>
+</head>
+<body>
+  <h2>Log in</h2>
+  <form action="/monarch_online_enrollment/login.php" method="post">
+    <input type="text" name="username" placeholder="Enter your username"/> <br> <br>
+    <input type="password" name="password" placeholder="Enter your password"/> <br> <br>
+    <input type="submit" name="login" value="LOGIN"/>
+  </form>
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="../css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.min.css"/>
-    <link rel="stylesheet" type="text/css" href="../css/style.css">
-    <title>Hello, world!</title>
-  </head>
-  <body>
-    <div class="container"><br>
-          <h1 class="text-center">Login Users!</h1><hr><br>
-          <div class="d-flex justify-content-center">
-          	<?php if(isset($usernameerr)){ ?> <div role="alert" aria-live="assertive" aria-atomic="true" align="center" class="toast alert alert-danger fade hide" data-delay="2000"><?php echo $usernameerr; ?></div><?php };?>
-          		<?php if(isset($worngpass)){ ?> <div role="alert" aria-live="assertive" aria-atomic="true" align="center" class="toast alert alert-danger fade hide" data-delay="2000"><?php echo $worngpass; ?></div><?php };?>
-          		<?php if(isset($status_inactive)){ ?> <div role="alert" aria-live="assertive" aria-atomic="true" align="center" class="toast alert alert-danger fade hide" data-delay="2000"><?php echo $status_inactive; ?></div><?php };?>
-          </div>
-          <div class="row animate__animated animate__pulse">
-            <div class="col-md-4 offset-md-4">
-             	<form method="POST" action="">
-				  <div class="form-group row">
-				    <div class="col-sm-12">
-				      <input type="text" class="form-control" name="username" value="<?= isset($username)? $username: ''; ?>" placeholder="Username" id="inputEmail3"> <?php echo isset($input_arr['input_user_error'])? '<label>'.$input_arr['input_user_error'].'</label>':''; ?>
-				    </div>
-				  </div>
-				  <div class="form-group row">
-				    <div class="col-sm-12">
-				      <input type="password" name="password" class="form-control" id="inputPassword3" placeholder="Password"><label><?php echo isset($input_arr['input_pass_error'])? '<label>'.$input_arr['input_pass_error'].'</label>':''; ?>
-				    </div>
-				  </div>
-				  <div class="text-center">
-				      <button type="submit" name="login" class="btn btn-warning">Sign in</button>
-				    </div>
-				    <p>If you have don't user account, You can<a href="register.php"> Register Account!</a></p>
-				  </div>
-				</form>
-            </div>
-          </div>
-    </div>
+  <p>Don't have an account? <a href="/monarch_online_enrollment/register.php">Register here</a>.</p>
 
-
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="../js/jquery-3.5.1.min.js"></script>
-    <script src="../js/bootstrap.min.js"></script>
-        <script type="text/javascript">
-    	$('.toast').toast('show')
-
-    </script>
-  </body>
+</body>
 </html>
