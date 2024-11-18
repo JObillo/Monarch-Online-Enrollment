@@ -126,6 +126,7 @@ if (isset($_POST['submit'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <title>Monarch Online Enrollment</title>
     <script>
         // Function to toggle transferee, requirements, and education sections based on year level and transferee checkbox

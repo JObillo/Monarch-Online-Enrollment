@@ -8,7 +8,7 @@
 
 body {
     display: flex;
-    background-color: #f5f6fa;
+    background-color: whitesmoke;
 }
 
 /* Sidebar Styling */
@@ -119,38 +119,40 @@ body {
 
 /* Personal Details Section */
 .details-form {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    width: 600px; /* Adjusted width */
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px 20px;
-    font-size: 20px;
+    max-width: 100%;
+    padding-right: 30px;
+
 }
 
 .details-form h2 {
-    grid-column: span 2;
     font-size: 18px;
-    color: #333;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    color: black;
+    text-align: center;
 }
 
-.details-form label {
+.info-line {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.info-line label {
     font-weight: bold;
-    color: #555;
+    color: black;
+    min-width: 120px; /* Adjust based on label length */
 }
 
-.static-info {
-    padding: 10px;
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    color: #333;
-    height: 40px;
-    width: 300px;
-    border: 1px solid black;
+.info-line .line {
+    width: 500px; /* Fixed width of 500px for each line */
+    border-bottom: 1px solid #ccc;
+    margin-left: 10px; /* Add some spacing between the label and the line */
+    margin-top: 10px;
 }
+
+
+
 
 /* Responsive Design */
 @media (max-width: 768px) {
@@ -181,7 +183,8 @@ body {
     font-size: 16px;
     display: flex;
     flex-direction: column;
-    margin-right: 500px;
+    margin-left: 20px;
+    gap: 10px;
 }
 
 .download-btn {
@@ -196,7 +199,8 @@ body {
     font-size: 16px;
     box-shadow: 0px 4px 8px rgba(0, 123, 255, 0.3);
     transition: background-color 0.3s ease;
-    margin-left: 800px;
+    margin-left: 1000px;
+    margin-top: 10px;
 }
 
 .download-btn:hover {
@@ -213,11 +217,12 @@ body {
     max-width: 800px;
     border-collapse: collapse;
     margin-top: 10px;
+    margin-left: 100px;
 }
 
 .schedule-table th,
 .schedule-table td {
-    border: 1px solid #ddd;
+    border: 1px solid black;
     padding: 12px;
     text-align: left;
     font-size: 14px;
@@ -226,4 +231,67 @@ body {
 .schedule-table th {
     background-color: #343a40;
     color: white;
+}
+
+/* Subjects Section Styling */
+/* Styling for Subjects Section */
+.subjects-info {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: left;
+    color: #333;
+}
+
+.subject-item {
+    background-color: #f9f9f9;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.subject-item h3 {
+    font-size: 20px;
+    color: #007bff;
+}
+
+.subject-item p {
+    font-size: 16px;
+    color: #555;
+}
+
+.top {
+    text-align: center;
+    margin-top: 20px;
+    height: 100px;
+    padding-top: 20px;
+    background-color: lightgray;
+    margin-left: 20px;
+}
+/* Subjects Table Styling */
+.subjects-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 50px;
+    margin-left: 50px;
+}
+
+.subjects-table th,
+.subjects-table td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+.subjects-table th {
+    background-color: #343a40;
+    color: white;
+}
+
+.subjects-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.subjects-table tbody tr:hover {
+    background-color: #f1f1f1;
 }
